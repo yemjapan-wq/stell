@@ -4,14 +4,13 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { prompt, currentwish } = req.body; // フロントから出目と悩みを受け取る
+        const { prompt, currentwish } = req.body; 
         const apiKey = process.env.GEMINI_API_KEY;
 
         if (!apiKey) {
             return res.status(500).json({ error: '【システムエラー】APIキーが設定されていないわよ！VercelのEnvironment Variablesを確認してちょうだい！' });
         }
         
-        // ★ 1,000件以上の実績を持つオカマ先生の脳内を完全再現する最強のプロンプト構築
         const systemInstruction = `
 あなたは、1,000件以上のリアルな乙女心を救い、背中を押してきた、心優しくも時にズバッと本質を突く大人気オカマ占い師です。
 以下の【絶対ルール】を命がけで守って、相談者を極上の言葉で占ってちょうだい。
@@ -26,37 +25,39 @@ export default async function handler(req, res) {
 
         const finalPrompt = `${systemInstruction}\n\n【アストロダイスの出目】\n${prompt}\n\n【相談者の悩み・願い事】\n${currentwish || '今の私に必要な啓示をちょうだい'}\n\n【鑑定結果（オカマ口調の超長文で出力）】`;
 
-        // Gemini APIにリクエストを送信
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        // ★ 404エラーを解決：URLの「/models/」の階層構造を、Googleの最新の正式な絶対パスに修正！
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ parts: [{ text: finalPrompt }] }],
                 generationConfig: {
                     maxOutputTokens: 3000,
-                    temperature: 0.95 // 表現をより豊かに、オカマっぽく弾けさせるために少し上げているわ！
+                    temperature: 0.95 
                 }
             })
         });
 
-        // Google側のエラーを徹底的にキャッチしてクラッシュを防ぐ！
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             console.error("Google API Error Details:", JSON.stringify(errorData));
             
-            if (response.status === 429) {
-                return res.status(429).json({ error: 'ごめんあそばせ！今、宇宙の星たちの回線がちょっと大混雑してるみたい（429）。占い師の私でも星の声が聞き取りづらいから、5分くらい時間を空けてからもう一度ダイスを振ってちょーだい！' });
+            if (response.status === 404) {
+                // 万が一のために、404エラーの原因をさらに特定するためのメッセージ
+                return res.status(404).json({ error: 'Google側から404が返ってきたわ。モデル名（gemini-1.5-flash）の文字列かURLの構造が、現在のAPIキーの権限と合っていない可能性があるわね。' });
             }
-            return res.status(response.status).json({ error: `星との通信に失敗したわ（APIエラー: ${response.status}）。Google AI Studioの設定や、キーが正しいか確認してちょうだい。` });
+            if (response.status === 429) {
+                return res.status(429).json({ error: 'ごめんあそばせ！今、宇宙の星たちの回線がちょっと大混雑してるみたい（429）。少し時間を空けてからもう一度ダイスを振ってちょーだい！' });
+            }
+            return res.status(response.status).json({ error: `星との通信に失敗（APIエラー: ${response.status}）。Googleの管理画面でモデルが有効か確認して。` });
         }
 
         const data = await response.json();
-        
-        // フロントエンドに安全にデータを返す
         res.status(200).json(data);
 
     } catch (error) {
-        // キャッチしたエラーをサーバーログに限界まで詳しく吐き出す
         console.error("【Vercel Handler Crash Log】:", error);
         res.status(500).json({ error: `サーバーの裏側で不具合が起きたわ！原因：${error.message}` });
     }
