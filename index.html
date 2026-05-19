@@ -311,8 +311,6 @@
 </div>
 
 <script>
-  const GEMINI_API_KEY = 'AIzaSyDHPuVgj1puKVe62zFfsiUI8G2IWiWch4A';
-
   const planets = [
     {name:'太陽',   sym:'☀',  img:'25.png'},
     {name:'月',     sym:'☽',  img:'27.png'},
@@ -461,55 +459,54 @@
 
   // ── Gemini API ──
   async function generateReading(planet,sign,house,wish){
-    const prompt=`あなたはプロのアストロダイス占い師です。以下の組み合わせで、ユーザーの願いを考慮してユーザーへの400文字の鑑定文を書いてください。
+    const prompt=`あなたは、1000件以上の実績を持つ、心優しく、時にズバッと本質を突く大人気のオカマ占い師です。敬語や機械的な文章は一切禁止。親しみやすいオカマ口調（〜よ、〜ちょうだい、アンタ、など）を使い、傷ついた相談者の乙女心に寄り添い、背中をガツンと押して元気づける鑑定文を書いてください。
+
+以下の星の組み合わせで鑑定してください。
 
 惑星：${planet}
 星座：${sign}
 ハウス：${house}
-ユーザーの願い・問いかけ：${wish||'（特になし）'}
+相談者の願い・問いかけ：${wish||'（特になし）'}
 
 【ルール】
-・「あなたへ」という語りかけ形式で書く
-・温かみのある女性向けの文章
-・具体的なアドバイスや今後のヒントで締めくくる
-・必ず350文字以上書くこと。途中で絶対に切らないこと。文章は必ず「。」で終わること。
+・オカマ口調を徹底する（〜よ、〜ちょうだい、アンタ、そうよ、など）
+・最初に現状をズバッと一言で指摘する（優しい毒舌）
+・そこから大きく盛り上げて、愛のある励ましで締める
+・落として→救う構成で感情を揺さぶること
+・相談者の願い事に必ず触れること
+・400文字程度（前後30文字は許容）
 ・余計な説明は不要、鑑定文のみ出力`;
 
-  const res = await fetch(
-            '/api/generate',
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: prompt })
-            }
-        );
-    if (!res.ok) throw new Error('Network error');
-    const data = await res.json();
-    if (data.candidates && data.candidates[0]) {
-      return data.candidates[0].content.parts.map(p => p.text).join('');
-    }
+    const res=await fetch('/api/generate',
+      {method:'POST',headers:{'Content-Type':'application/json'},
+       body:JSON.stringify({prompt:prompt})}
+    );
+    if(!res.ok) throw new Error('Network error');
+    const data=await res.json();
+    if(data.candidates&&data.candidates[0])return data.candidates[0].content.parts.map(p=>p.text).join('');
     throw new Error('API error');
-}
+  }
+
   async function getReading(){
     const p=planets[cur.planet],s=signs[cur.sign],h=houses[cur.house];
-    document.getElementById('result-cards').innerHTML='<div class="result-card"><img class="result-card-img" src="'+p.img+'"><span class="result-card-sym">'+p.sym+'</span><div class="result-card-category">PLANET</div><div class="result-card-name">'+p.name+'</div></div><div class="result-card"><img class="result-card-img" src="'+s.img+'"><span class="result-card-sym">'+s.sym+'</span><div class="result-card-category">SIGN</div><div class="result-card-name">'+s.name+'</div></div><div class="result-card"><img class="result-card-img" src="'+h.img+'"><span class="result-card-sym">'+h.sym+'</span><div class="result-card-category">HOUSE</div><div class="result-card-name">'+h.name+'</div></div>';document.getElementById('loading').classList.add('show');
+    document.getElementById('loading').classList.add('show');
     try{
       const text=await generateReading(p.name,s.name,h.name,currentWish);
       document.getElementById('result-cards').innerHTML=`
         <div class="result-card">
-          <img class="result-card-img" src="${p.img}">
+          <img class="result-card-img" src="images/${p.img}">
           <span class="result-card-sym">${p.sym}</span>
           <div class="result-card-category">PLANET</div>
           <div class="result-card-name">${p.name}</div>
         </div>
         <div class="result-card">
-          <img class="result-card-img" src="${s.img}">
+          <img class="result-card-img" src="images/${s.img}">
           <span class="result-card-sym">${s.sym}</span>
           <div class="result-card-category">SIGN</div>
           <div class="result-card-name">${s.name}</div>
         </div>
         <div class="result-card">
-          <img class="result-card-img" src="${h.img}">
+          <img class="result-card-img" src="images/${h.img}">
           <span class="result-card-sym">${h.sym}</span>
           <div class="result-card-category">HOUSE</div>
           <div class="result-card-name">${h.name}</div>
