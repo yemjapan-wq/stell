@@ -492,19 +492,19 @@
       const text=await generateReading(p.name,s.name,h.name,currentWish);
       document.getElementById('result-cards').innerHTML=`
         <div class="result-card">
-          <img class="result-card-img" src="images/${p.img}">
+          <img class="result-card-img" src="${p.img}">
           <span class="result-card-sym">${p.sym}</span>
           <div class="result-card-category">PLANET</div>
           <div class="result-card-name">${p.name}</div>
         </div>
         <div class="result-card">
-          <img class="result-card-img" src="images/${s.img}">
+          <img class="result-card-img" src="${s.img}">
           <span class="result-card-sym">${s.sym}</span>
           <div class="result-card-category">SIGN</div>
           <div class="result-card-name">${s.name}</div>
         </div>
         <div class="result-card">
-          <img class="result-card-img" src="images/${h.img}">
+          <img class="result-card-img" src="${h.img}">
           <span class="result-card-sym">${h.sym}</span>
           <div class="result-card-category">HOUSE</div>
           <div class="result-card-name">${h.name}</div>
