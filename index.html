@@ -461,7 +461,7 @@
 
   // ── Gemini API ──
   async function generateReading(planet,sign,house,wish){
-    const prompt=`あなたはプロのアストロロジー占い師です。以下の組み合わせで、ユーザーの願いを考慮してユーザーへの400文字の鑑定文を書いてください。
+    const prompt=`あなたはプロのアストロダイス占い師です。以下の組み合わせで、ユーザーの願いを考慮してユーザーへの400文字の鑑定文を書いてください。
 
 惑星：${planet}
 星座：${sign}
@@ -470,15 +470,15 @@
 
 【ルール】
 ・「あなたへ」という語りかけ形式で書く
-・詩的で神秘的、温かみのある女性向けの文章
+・温かみのある女性向けの文章
 ・具体的なアドバイスや今後のヒントで締めくくる
-・必ず400文字以上450文字以内で書くこと。短い場合は必ず書き足すこと。絶対に途中で切らないこと。
+・必ず400文字以上450文字以内で書くこと。短い場合は必ず書き足すこと。絶対に途中で切らないこと。文章は必ず「。」で終わること。
 ・余計な説明は不要、鑑定文のみ出力`;
 
     const res=await fetch(
       `/api/generate`,
       {method:'POST',headers:{'Content-Type':'application/json'},
-       body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:2000,temperature:0.9}})}
+       body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:3000,temperature:0.9}})}
     );
     const data=await res.json();
     if(data.candidates&&data.candidates[0])return data.candidates[0].content.parts[0].text;
