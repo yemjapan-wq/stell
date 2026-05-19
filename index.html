@@ -1,71 +1,553 @@
-export default async function handler(req, res) {
-    // お行儀の悪いアクセスをブロックするための設定よ（CORS許可）
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader('Access-Control-Allow-Origin', '*'); 
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STELLA DIVE | 星が語るあなたへのメッセージ</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Serif+JP:wght@200;300;400;600&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --space-deep:#05060f; --gold:#c9a84c; --gold-light:#e8c97a; --gold-dark:#9a7a2e;
+    --text-white:#f0ead8; --text-cream:#d4c9a8; --text-dim:#7a6a5a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--space-deep);font-family:'Noto Serif JP',serif;color:var(--text-white);min-height:100vh;overflow-x:hidden;}
+  .starfield{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 20% 40%,rgba(26,21,53,0.9) 0%,transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(13,16,37,0.7) 0%,transparent 50%);}
+  .star{position:absolute;border-radius:50%;animation:twinkle var(--dur) ease-in-out infinite;opacity:0;}
+  @keyframes twinkle{0%,100%{opacity:0;transform:scale(0.3)}50%{opacity:var(--op);transform:scale(1)}}
+  .screen{display:none;min-height:100vh;position:relative;z-index:1;}
+  .screen.active{display:flex;flex-direction:column;align-items:center;}
 
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
+  /* ── TOP ── */
+  #screen-top{justify-content:flex-start;padding:40px 24px 60px;}
+  .ornament-line{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px;}
+  .ornament-line::before,.ornament-line::after{content:'';width:50px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+  .star-symbol{color:var(--gold);font-size:12px;letter-spacing:6px;}
+  .top-title{font-family:'Cinzel',serif;font-size:clamp(34px,9vw,58px);font-weight:600;letter-spacing:0.15em;color:var(--text-white);line-height:1;text-shadow:0 0 40px rgba(201,168,76,0.25);animation:fadeDown 1.4s ease forwards;opacity:0;animation-delay:0.2s;animation-fill-mode:forwards;}
+  .title-dive{color:var(--gold);text-shadow:0 0 30px rgba(201,168,76,0.6);}
+  .top-subtitle{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(13px,3vw,17px);color:var(--text-cream);letter-spacing:0.1em;margin-top:8px;animation:fadeDown 1.6s ease forwards;opacity:0;animation-delay:0.4s;animation-fill-mode:forwards;}
+  .top-tagline{font-size:11px;color:var(--text-dim);letter-spacing:0.3em;margin-top:5px;font-weight:200;animation:fadeDown 1.8s ease forwards;opacity:0;animation-delay:0.6s;animation-fill-mode:forwards;}
+
+  /* 手順エリア */
+  .steps-area{width:100%;max-width:360px;margin-top:32px;}
+
+  .step{display:flex;gap:14px;margin-bottom:24px;animation:fadeUp 0.8s ease forwards;opacity:0;animation-fill-mode:forwards;}
+  .step:nth-child(1){animation-delay:0.7s}
+  .step:nth-child(2){animation-delay:0.9s}
+  .step:nth-child(3){animation-delay:1.1s}
+
+  .step-num{font-family:'Cinzel',serif;font-size:22px;color:var(--gold);opacity:0.8;min-width:28px;line-height:1.2;}
+  .step-body{flex:1;}
+  .step-title{font-size:13px;color:var(--text-cream);margin-bottom:8px;line-height:1.7;letter-spacing:0.02em;}
+  .step-title-highlight{font-size:16px;font-weight:600;color:var(--gold);letter-spacing:0.05em;line-height:1.6;margin-bottom:8px;text-shadow:0 0 20px rgba(201,168,76,0.3);}
+
+  /* 入力欄 */
+  .wish-input{width:100%;background:rgba(13,16,37,0.85);border:1px solid rgba(201,168,76,0.3);padding:13px 15px;font-family:'Noto Serif JP',serif;font-size:14px;color:var(--text-white);outline:none;resize:none;transition:border-color 0.3s;line-height:1.8;}
+  .wish-input::placeholder{color:var(--text-dim);font-size:12px;}
+  .wish-input:focus{border-color:var(--gold);}
+
+  /* クイックシャッフルボックス */
+  .quick-box{margin-top:10px;padding:14px;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.15);}
+  .quick-note{font-size:11px;color:var(--text-dim);letter-spacing:0.1em;margin-bottom:10px;}
+  .quick-warning{font-size:10px;color:rgba(201,168,76,0.5);letter-spacing:0.05em;margin-top:8px;line-height:1.6;}
+  .btn-quick{width:100%;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.25em;color:var(--text-dim);background:transparent;border:1px solid rgba(201,168,76,0.25);padding:12px;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-quick:hover{border-color:rgba(201,168,76,0.5);color:var(--gold);}
+
+  /* クイック結果表示 */
+  .quick-result{display:none;margin-top:10px;padding:12px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);}
+  .quick-result.show{display:block;}
+  .quick-result-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.3em;color:var(--gold);margin-bottom:8px;}
+  .quick-result-items{display:flex;gap:8px;}
+  .quick-item{flex:1;text-align:center;padding:6px 4px;background:rgba(26,21,53,0.6);border:1px solid rgba(201,168,76,0.2);}
+  .quick-item-sym{font-size:16px;color:var(--gold);display:block;font-family:'Segoe UI Symbol','Apple Symbols',serif;}
+  .quick-item-name{font-size:10px;color:var(--text-cream);margin-top:2px;}
+
+  /* 星に問いかけるボタン */
+  .btn-start{width:100%;font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.3em;color:var(--space-deep);background:linear-gradient(135deg,var(--gold-dark),var(--gold),var(--gold-light),var(--gold));background-size:200% auto;border:none;padding:16px;cursor:pointer;transition:all 0.4s ease;position:relative;}
+  .btn-start:hover:not(:disabled){box-shadow:0 0 30px rgba(201,168,76,0.5);transform:translateY(-1px);background-position:right center;}
+  .btn-start:disabled{background:linear-gradient(135deg,rgba(201,168,76,0.15),rgba(201,168,76,0.1));color:rgba(201,168,76,0.25);cursor:not-allowed;}
+
+  /* 確認ダイアログ */
+  .dialog-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;padding:24px;}
+  .dialog-overlay.show{display:flex;}
+  .dialog{background:#1a1430;border:1px solid rgba(201,168,76,0.3);padding:28px 24px;max-width:300px;width:100%;text-align:center;}
+  .dialog-title{font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.2em;color:var(--gold);margin-bottom:14px;}
+  .dialog-text{font-size:13px;color:var(--text-cream);line-height:1.9;margin-bottom:20px;}
+  .dialog-btns{display:flex;gap:10px;}
+  .dialog-cancel{flex:1;background:transparent;border:1px solid rgba(201,168,76,0.25);padding:12px;font-family:'Noto Serif JP',serif;font-size:13px;color:var(--text-dim);cursor:pointer;transition:all 0.3s;}
+  .dialog-cancel:hover{border-color:rgba(201,168,76,0.5);color:var(--text-cream);}
+  .dialog-ok{flex:1;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.4);padding:12px;font-family:'Noto Serif JP',serif;font-size:13px;color:var(--gold);cursor:pointer;transition:all 0.3s;}
+  .dialog-ok:hover{background:rgba(201,168,76,0.25);}
+
+  /* ── INPUT ── */
+  #screen-input{padding:50px 24px 40px;justify-content:flex-start;}
+  .screen-header{text-align:center;margin-bottom:24px;width:100%;}
+  .screen-label{font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.4em;color:var(--gold);margin-bottom:10px;}
+  .screen-title{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,5vw,30px);font-weight:300;color:var(--text-white);letter-spacing:0.05em;}
+  .divider{width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:16px auto;}
+
+  /* 現在の問いかけ */
+  .current-wish{width:100%;max-width:360px;margin-bottom:20px;padding:12px 16px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);position:relative;}
+  .current-wish::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+  .current-wish-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.3em;color:var(--gold);margin-bottom:6px;}
+  .current-wish-text{font-size:13px;color:var(--text-cream);line-height:1.8;font-style:italic;}
+
+  /* 手動選択（メイン） */
+  .manual-main{width:100%;max-width:360px;background:rgba(13,16,37,0.85);border:1px solid rgba(201,168,76,0.18);padding:22px 18px;margin-bottom:16px;position:relative;}
+  .manual-main::before{content:'';position:absolute;inset:4px;border:1px solid rgba(201,168,76,0.07);pointer-events:none;}
+  .manual-main-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.3em;color:var(--text-dim);text-align:center;margin-bottom:16px;}
+  .select-groups{display:flex;flex-direction:column;gap:12px;margin-bottom:18px;}
+  .select-group{display:flex;align-items:center;gap:12px;}
+  .select-label{font-size:10px;letter-spacing:0.2em;color:var(--text-dim);width:48px;text-align:right;flex-shrink:0;}
+  .styled-select{flex:1;appearance:none;background:rgba(26,21,53,0.9);border:1px solid rgba(201,168,76,0.22);padding:11px 32px 11px 14px;font-family:'Noto Serif JP',serif;font-size:13px;color:var(--text-white);cursor:pointer;outline:none;transition:border-color 0.3s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c9a84c'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+  .styled-select:focus{border-color:var(--gold);}
+
+  /* 鑑定ボタン */
+  .btn-divine{width:100%;font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.3em;color:var(--space-deep);background:linear-gradient(135deg,var(--gold-dark),var(--gold),var(--gold-light),var(--gold));background-size:200% auto;border:none;padding:16px;cursor:pointer;transition:all 0.3s ease;}
+  .btn-divine:hover{box-shadow:0 4px 25px rgba(201,168,76,0.45);transform:translateY(-1px);background-position:right center;}
+
+  /* 対応表 */
+  .ref-toggle{width:100%;max-width:360px;margin-bottom:16px;}
+  .ref-toggle-btn{width:100%;background:transparent;border:1px solid rgba(201,168,76,0.12);padding:10px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.25em;color:var(--text-dim);cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .ref-toggle-btn:hover{border-color:rgba(201,168,76,0.3);color:var(--gold);}
+  .ref-panel{display:none;padding:16px;background:rgba(13,16,37,0.8);border:1px solid rgba(201,168,76,0.1);border-top:none;}
+  .ref-panel.open{display:block;}
+  .ref-section-title{font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.3em;color:var(--gold);margin-bottom:10px;text-align:center;}
+  .ref-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;margin-bottom:14px;}
+  .ref-item{display:flex;align-items:center;gap:6px;padding:4px 6px;background:rgba(201,168,76,0.04);}
+  .ref-num{font-family:'Cinzel',serif;font-size:10px;color:var(--gold);min-width:18px;text-align:right;}
+  .ref-sym{font-size:13px;color:var(--text-cream);min-width:18px;text-align:center;font-family:'Segoe UI Symbol','Apple Symbols',serif;}
+  .ref-name{font-size:11px;color:var(--text-cream);}
+
+  /* ── RESULT ── */
+  #screen-result{padding:50px 24px 60px;justify-content:flex-start;}
+  .result-cards{display:flex;gap:10px;margin-bottom:24px;max-width:360px;width:100%;}
+  .result-card{flex:1;background:rgba(26,21,53,0.92);border:1px solid rgba(201,168,76,0.32);padding:12px 6px;text-align:center;position:relative;animation:cardReveal 0.6s ease forwards;opacity:0;}
+  .result-card:nth-child(1){animation-delay:0.1s}.result-card:nth-child(2){animation-delay:0.3s}.result-card:nth-child(3){animation-delay:0.5s}
+  @keyframes cardReveal{from{opacity:0;transform:translateY(20px)scale(0.95)}to{opacity:1;transform:translateY(0)scale(1)}}
+  .result-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+  .result-card-img{width:70px;height:70px;margin:0 auto 4px;display:block;object-fit:contain;}
+  .result-card-sym{font-size:18px;color:var(--gold);display:block;margin-bottom:2px;font-family:'Segoe UI Symbol','Apple Symbols',serif;}
+  .result-card-category{font-size:8px;letter-spacing:0.2em;color:var(--text-dim);font-family:'Cinzel',serif;}
+  .result-card-name{font-size:11px;color:var(--text-cream);margin-top:3px;font-weight:600;}
+  .wish-display{max-width:360px;width:100%;margin-bottom:20px;padding:14px 18px;background:rgba(201,168,76,0.05);border-left:2px solid rgba(201,168,76,0.4);}
+  .wish-display-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.3em;color:var(--gold);margin-bottom:6px;}
+  .wish-display-text{font-size:13px;color:var(--text-cream);line-height:1.8;font-style:italic;}
+  .reading-frame{max-width:360px;width:100%;background:rgba(13,16,37,0.88);border:1px solid rgba(201,168,76,0.22);padding:32px 26px;position:relative;animation:fadeIn 0.8s ease 0.7s forwards;opacity:0;animation-fill-mode:forwards;}
+  .reading-frame::before{content:'';position:absolute;inset:6px;border:1px solid rgba(201,168,76,0.08);pointer-events:none;}
+  .reading-corner{position:absolute;width:14px;height:14px;border-color:var(--gold);border-style:solid;opacity:0.45;}
+  .reading-corner.tl{top:12px;left:12px;border-width:1px 0 0 1px}.reading-corner.tr{top:12px;right:12px;border-width:1px 1px 0 0}
+  .reading-corner.bl{bottom:12px;left:12px;border-width:0 0 1px 1px}.reading-corner.br{bottom:12px;right:12px;border-width:0 1px 1px 0}
+  .reading-header{text-align:center;margin-bottom:20px;}
+  .reading-star{color:var(--gold);font-size:16px;letter-spacing:6px;display:block;margin-bottom:8px;text-shadow:0 0 10px rgba(201,168,76,0.5);}
+  .reading-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--text-dim);letter-spacing:0.1em;}
+  .reading-text{font-size:14px;line-height:2.2;color:var(--text-cream);font-weight:300;letter-spacing:0.05em;}
+  .reading-footer{text-align:right;margin-top:20px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:12px;color:var(--gold);letter-spacing:0.15em;opacity:0.6;}
+  .btn-again{margin-top:24px;max-width:360px;width:100%;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.3em;color:var(--text-dim);background:transparent;border:1px solid rgba(201,168,76,0.18);padding:14px;cursor:pointer;transition:all 0.3s ease;}
+  .btn-again:hover{border-color:rgba(201,168,76,0.5);color:var(--gold);}
+
+  /* LOADING */
+  .loading-overlay{display:none;position:fixed;inset:0;background:rgba(5,6,15,0.96);z-index:100;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
+  .loading-overlay.show{display:flex;}
+  .loading-orb{width:60px;height:60px;border-radius:50%;border:1px solid rgba(201,168,76,0.3);position:relative;animation:orbSpin 2s linear infinite;}
+  .loading-orb::before{content:'';position:absolute;top:-3px;left:50%;width:6px;height:6px;background:var(--gold);border-radius:50%;transform:translateX(-50%);box-shadow:0 0 10px var(--gold);}
+  @keyframes orbSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  .loading-star-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;color:var(--gold);animation:pulse 2s ease-in-out infinite;}
+  .loading-text{font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.4em;color:var(--text-dim);animation:breathe 2s ease-in-out infinite;}
+  .loading-sub{font-size:11px;color:var(--text-dim);letter-spacing:0.15em;opacity:0.5;}
+  @keyframes breathe{0%,100%{opacity:0.3}50%{opacity:1}}
+  @keyframes pulse{0%,100%{text-shadow:0 0 20px rgba(201,168,76,0.8)}50%{text-shadow:0 0 40px rgba(201,168,76,1),0 0 60px rgba(201,168,76,0.4)}}
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+</style>
+</head>
+<body>
+<div class="starfield" id="starfield"></div>
+
+<!-- ローディング -->
+<div class="loading-overlay" id="loading">
+  <div class="loading-orb"><div class="loading-star-inner">✦</div></div>
+  <div class="loading-text">READING THE STARS...</div>
+  <div class="loading-sub">星があなたへのメッセージを紡いでいます</div>
+</div>
+
+<!-- クイック確認ダイアログ -->
+<div class="dialog-overlay" id="dialog">
+  <div class="dialog">
+    <div class="dialog-title">確認</div>
+    <div class="dialog-text">ダイスを振らずに<br>星が結果を選びます。<br>よろしいですか？</div>
+    <div class="dialog-btns">
+      <button class="dialog-cancel" onclick="closeDialog()">キャンセル</button>
+      <button class="dialog-ok" onclick="confirmQuick()">はい</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOP ── -->
+<div class="screen active" id="screen-top">
+  <div style="text-align:center;margin-bottom:24px;animation:fadeDown 1.2s ease forwards;">
+    <div class="ornament-line"><span class="star-symbol">✦ ✧ ✦</span></div>
+    <div class="top-title">STELLA <span class="title-dive">DIVE</span></div>
+    <div class="top-subtitle">星が語るあなたへのメッセージ</div>
+    <div class="top-tagline">ASTRO DICE READING</div>
+  </div>
+
+  <div class="steps-area">
+
+    <!-- STEP 1 -->
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">星に伝えたいことを書いてください</div>
+        <textarea class="wish-input" id="top-wish-input" rows="2"
+          placeholder="例）良い彼氏が現れますか？&#10;仕事を変えるべきでしょうか？"
+          oninput="checkWishInput()"></textarea>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title-highlight">上記の願いを込めて<br>ダイスをお持ちの方は振ってください</div>
+        <div class="quick-box">
+          <div class="quick-note">ダイスが手元にない方はこちら</div>
+          <button class="btn-quick" onclick="openDialog()">🎲 クイックシャッフル</button>
+          <div class="quick-warning">※ダイスをお持ちの方は、押さないでください</div>
+          <div class="quick-result" id="quick-result">
+            <div class="quick-result-label">— 星が選んだ組み合わせ —</div>
+            <div class="quick-result-items" id="quick-result-items"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">振り終わりましたら<br>下のボタンを押してください</div>
+        <button class="btn-start" id="btn-start" onclick="goNext()" disabled>
+          ✦ 星に問いかける ✦
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── INPUT（手動メイン） ── -->
+<div class="screen" id="screen-input">
+  <div class="screen-header">
+    <div class="screen-label">STEP 02</div>
+    <div class="screen-title">出た目を選んでください</div>
+    <div class="divider"></div>
+  </div>
+
+  <!-- 現在の問いかけ -->
+  <div class="current-wish">
+    <div class="current-wish-label">— 現在の問いかけ —</div>
+    <div class="current-wish-text" id="current-wish-text"></div>
+  </div>
+
+  <!-- 手動選択メイン -->
+  <div class="manual-main">
+    <div class="manual-main-label">— ダイスの目を選んでください —</div>
+    <div class="select-groups">
+      <div class="select-group">
+        <div class="select-label">惑星</div>
+        <select class="styled-select" id="select-planet" onchange="updateFromSelect('planet')"></select>
+      </div>
+      <div class="select-group">
+        <div class="select-label">星座</div>
+        <select class="styled-select" id="select-sign" onchange="updateFromSelect('sign')"></select>
+      </div>
+      <div class="select-group">
+        <div class="select-label">ハウス</div>
+        <select class="styled-select" id="select-house" onchange="updateFromSelect('house')"></select>
+      </div>
+    </div>
+    <button class="btn-divine" onclick="showReading()">✦ 星のメッセージを受け取る ✦</button>
+  </div>
+
+  <!-- 対応表 -->
+  <div class="ref-toggle">
+    <button class="ref-toggle-btn" onclick="toggleRef()">
+      📋 <span id="ref-btn-text">普通のサイコロ用 対応表を見る</span>
+    </button>
+    <div class="ref-panel" id="ref-panel">
+      <div class="ref-section-title">— 惑星 —</div>
+      <div class="ref-grid" id="ref-planets"></div>
+      <div class="ref-section-title">— 星座 —</div>
+      <div class="ref-grid" id="ref-signs"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── RESULT ── -->
+<div class="screen" id="screen-result">
+  <div class="screen-header">
+    <div class="screen-label">YOUR READING</div>
+    <div class="screen-title">星からのメッセージ</div>
+    <div class="divider"></div>
+  </div>
+  <div class="result-cards" id="result-cards"></div>
+  <div class="wish-display" id="wish-display" style="display:none">
+    <div class="wish-display-label">— あなたの問いかけ —</div>
+    <div class="wish-display-text" id="wish-display-text"></div>
+  </div>
+  <div class="reading-frame">
+    <div class="reading-corner tl"></div><div class="reading-corner tr"></div>
+    <div class="reading-corner bl"></div><div class="reading-corner br"></div>
+    <div class="reading-header">
+      <span class="reading-star">✦ ✧ ✦</span>
+      <div class="reading-title" id="reading-combination"></div>
+    </div>
+    <div class="reading-text" id="reading-text"></div>
+    <div class="reading-footer">— STELLA DIVE —</div>
+  </div>
+  <button class="btn-again" onclick="backToTop()">✦ もう一度占う ✦</button>
+</div>
+
+<script>
+  const GEMINI_API_KEY = 'AIzaSyDHPuVgj1puKVe62zFfsiUI8G2IWiWch4A';
+
+  const planets = [
+    {name:'太陽',   sym:'☀',  img:'25.png'},
+    {name:'月',     sym:'☽',  img:'27.png'},
+    {name:'水星',   sym:'☿',  img:'26.png'},
+    {name:'金星',   sym:'♀',  img:'29.png'},
+    {name:'火星',   sym:'♂',  img:'28.png'},
+    {name:'木星',   sym:'♃',  img:'31.png'},
+    {name:'土星',   sym:'♄',  img:'30.png'},
+    {name:'天王星', sym:'♅',  img:'32.png'},
+    {name:'海王星', sym:'♆',  img:'33.png'},
+    {name:'冥王星', sym:'♇',  img:'34.png'},
+    {name:'キロン', sym:'⚷',  img:'35.png'},
+    {name:'北ノード',sym:'☊', img:'36.png'},
+    {name:'地球',   sym:'⊕',  img:'37.png'},
+  ];
+  const signs = [
+    {name:'牡羊座', sym:'♈︎', img:'1.png'},
+    {name:'牡牛座', sym:'♉︎', img:'2.png'},
+    {name:'双子座', sym:'♊︎', img:'3.png'},
+    {name:'蟹座',   sym:'♋︎', img:'5.png'},
+    {name:'獅子座', sym:'♌︎', img:'4.png'},
+    {name:'乙女座', sym:'♍︎', img:'7.png'},
+    {name:'天秤座', sym:'♎︎', img:'6.png'},
+    {name:'蠍座',   sym:'♏︎', img:'9.png'},
+    {name:'射手座', sym:'♐︎', img:'8.png'},
+    {name:'山羊座', sym:'♑︎', img:'10.png'},
+    {name:'水瓶座', sym:'♒︎', img:'11.png'},
+    {name:'魚座',   sym:'♓︎', img:'12.png'},
+  ];
+  const houses = [
+    {name:'1ハウス',  sym:'Ⅰ',  img:'13.png', theme:'自己'},
+    {name:'2ハウス',  sym:'Ⅱ',  img:'14.png', theme:'財産'},
+    {name:'3ハウス',  sym:'Ⅲ',  img:'15.png', theme:'伝達'},
+    {name:'4ハウス',  sym:'Ⅳ',  img:'16.png', theme:'家庭'},
+    {name:'5ハウス',  sym:'Ⅴ',  img:'17.png', theme:'創造'},
+    {name:'6ハウス',  sym:'Ⅵ',  img:'18.png', theme:'健康'},
+    {name:'7ハウス',  sym:'Ⅶ',  img:'19.png', theme:'関係'},
+    {name:'8ハウス',  sym:'Ⅷ',  img:'21.png', theme:'変容'},
+    {name:'9ハウス',  sym:'Ⅸ',  img:'20.png', theme:'探求'},
+    {name:'10ハウス', sym:'Ⅹ',  img:'23.png', theme:'使命'},
+    {name:'11ハウス', sym:'Ⅺ',  img:'22.png', theme:'希望'},
+    {name:'12ハウス', sym:'Ⅻ',  img:'24.png', theme:'神秘'},
+  ];
+
+  let cur = {planet:0, sign:0, house:0};
+  let currentWish = '';
+  let isQuickMode = false;
+
+  // ── 入力チェック ──
+  function checkWishInput(){
+    const val = document.getElementById('top-wish-input').value.trim();
+    document.getElementById('btn-start').disabled = val.length === 0;
+  }
+
+  // ── ダイアログ ──
+  function openDialog(){
+    document.getElementById('dialog').classList.add('show');
+  }
+  function closeDialog(){
+    document.getElementById('dialog').classList.remove('show');
+  }
+  function confirmQuick(){
+    closeDialog();
+    // ランダム選択
+    const pi = Math.floor(Math.random()*planets.length);
+    const si = Math.floor(Math.random()*signs.length);
+    const hi = Math.floor(Math.random()*houses.length);
+    cur = {planet:pi, sign:si, house:hi};
+    isQuickMode = true;
+
+    // セレクトに反映
+    document.getElementById('select-planet').value = pi;
+    document.getElementById('select-sign').value = si;
+    document.getElementById('select-house').value = hi;
+
+    // TOP画面に結果表示
+    const p=planets[pi], s=signs[si], h=houses[hi];
+    document.getElementById('quick-result-items').innerHTML = `
+      <div class="quick-item"><span class="quick-item-sym">${p.sym}</span><div class="quick-item-name">${p.name}</div></div>
+      <div class="quick-item"><span class="quick-item-sym">${s.sym}</span><div class="quick-item-name">${s.name}</div></div>
+      <div class="quick-item"><span class="quick-item-sym">${h.sym}</span><div class="quick-item-name">${h.name}</div></div>
+    `;
+    document.getElementById('quick-result').classList.add('show');
+  }
+
+  // ── 星に問いかけるボタン ──
+  function goNext(){
+    currentWish = document.getElementById('top-wish-input').value.trim();
+    if(isQuickMode){
+      // クイック → 直接鑑定
+      getReading();
+    } else {
+      // 手動 → 入力画面へ
+      document.getElementById('current-wish-text').textContent = currentWish;
+      showScreen('input');
     }
+  }
 
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method Not Allowed' });
-    }
+  // ── もう一度 ──
+  function backToTop(){
+    isQuickMode = false;
+    document.getElementById('quick-result').classList.remove('show');
+    document.getElementById('top-wish-input').value = '';
+    document.getElementById('btn-start').disabled = true;
+    showScreen('top');
+  }
 
-    try {
-        const { prompt, currentwish } = req.body; 
-        const apiKey = process.env.GEMINI_API_KEY;
+  // ── セレクト構築 ──
+  function buildSelects(){
+    const ps=document.getElementById('select-planet');
+    planets.forEach((p,i)=> ps.innerHTML+=`<option value="${i}">${i+1}. ${p.sym} ${p.name}</option>`);
+    const ss=document.getElementById('select-sign');
+    signs.forEach((s,i)=> ss.innerHTML+=`<option value="${i}">${i+1}. ${s.sym} ${s.name}</option>`);
+    const hs=document.getElementById('select-house');
+    houses.forEach((h,i)=> hs.innerHTML+=`<option value="${i}">${h.sym} ${h.name}（${h.theme}）</option>`);
+  }
 
-        if (!apiKey) {
-            return res.status(500).json({ error: '【システムエラー】APIキーが設定されていないわよ！Vercelの管理画面を確認して！' });
-        }
-        
-        // ★ ここにアンタのオカマ占い師としての魂を限界まで詰め込んだわ！文字数も400〜600文字よ！
-        const systemInstruction = `
-あなたは、1,000件以上のリアルな乙女心を救い、背中を押してきた、心優しくも時にズバッと本質を突く大人気オカマ占い師です。
-以下の【絶対ルール】を命がけで守って、相談者を極上の言葉で占ってちょうだい。
+  function updateFromSelect(t){
+    const i=parseInt(document.getElementById('select-'+t).value);
+    if(t==='planet')cur.planet=i;
+    else if(t==='sign')cur.sign=i;
+    else cur.house=i;
+  }
 
-【絶対ルール】
-1. 機械的な敬語、ビジネスライクな文章は一切禁止。親しみやすく、愛のあるオカマ口調（「〜よ」「〜ちょうだい」「アンタ」「ごめんあそばせ」など）を徹底すること。
-2. 相談者を「アンタ」と呼び、友達や母親のような距離感で親身に寄り添うこと。
-3. 出されたアストロダイスの結果（天体・星座・ハウス）の占星術的な意味を、相談者の「悩み」に強引なほどガッチリ結びつけてリーディングすること。
-4. 途中で厳しいことを言っても、最後は必ず圧倒的なエネルギーで元気づけ、前を向いて一歩踏み出せるように背中をガツンと押して終わること。
-5. スマホの1画面に美しく収まるよう、400文字から最大600文字程度（改行含む）の、濃密で読み応えのあるミドルボリュームで出力すること。
-`;
+  // ── 対応表 ──
+  function buildRefTable(){
+    const rp=document.getElementById('ref-planets');
+    planets.forEach((p,i)=> rp.innerHTML+=`<div class="ref-item"><span class="ref-num">${i+1}</span><span class="ref-sym">${p.sym}</span><span class="ref-name">${p.name}</span></div>`);
+    const rs=document.getElementById('ref-signs');
+    signs.forEach((s,i)=> rs.innerHTML+=`<div class="ref-item"><span class="ref-num">${i+1}</span><span class="ref-sym">${s.sym}</span><span class="ref-name">${s.name}</span></div>`);
+  }
 
-        const finalPrompt = `${systemInstruction}\n\n【アストロダイスの出目】\n${prompt}\n\n【相談者の悩み・願い事】\n${currentwish || '今の私に必要な啓示をちょうだい'}\n\n【鑑定結果（オカマ口調の400〜600文字で出力）】`;
+  function toggleRef(){
+    const panel=document.getElementById('ref-panel');
+    const btn=document.getElementById('ref-btn-text');
+    panel.classList.toggle('open');
+    btn.textContent=panel.classList.contains('open')?'対応表を閉じる':'普通のサイコロ用 対応表を見る';
+  }
 
-        // URLの形もGoogleの最新の正解ルートに直しておいたわ！
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  // ── 画面切替 ──
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('screen-'+id).classList.add('active');
+    window.scrollTo(0,0);
+  }
 
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: finalPrompt }] }],
-                generationConfig: {
-                    maxOutputTokens: 1000,
-                    temperature: 0.95 
-                }
-            })
-        });
+  // ── Gemini API ──
+  async function generateReading(planet,sign,house,wish){
+    const prompt=`あなたはプロのアストロダイス占い師です。以下の組み合わせで、ユーザーの願いを考慮してユーザーへの400文字の鑑定文を書いてください。
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.error("Google API Error:", JSON.stringify(errorData));
-            
-            if (response.status === 429) {
-                return res.status(429).json({ error: 'ごめんあそばせ！今、星たちの回線がちょっと大混雑してるみたい。5分くらい空けてからもう一度ダイスを振ってちょーだい！' });
+惑星：${planet}
+星座：${sign}
+ハウス：${house}
+ユーザーの願い・問いかけ：${wish||'（特になし）'}
+
+【ルール】
+・「あなたへ」という語りかけ形式で書く
+・温かみのある女性向けの文章
+・具体的なアドバイスや今後のヒントで締めくくる
+・必ず350文字以上書くこと。途中で絶対に切らないこと。文章は必ず「。」で終わること。
+・余計な説明は不要、鑑定文のみ出力`;
+
+  const res = await fetch(
+            '/api/generate',
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: prompt })
             }
-            return res.status(response.status).json({ error: `星との通信に失敗（エラー: ${response.status}）。APIキーが正しいか確認してね。` });
-        }
-
-        const data = await response.json();
-        res.status(200).json(data);
-
-    } catch (error) {
-        console.error("Crash Log:", error);
-        res.status(500).json({ error: `サーバーの裏側で不具合よ！原因：${error.message}` });
+        );
+    if (!res.ok) throw new Error('Network error');
+    const data = await res.json();
+    if (data.candidates && data.candidates[0]) {
+      return data.candidates[0].content.parts.map(p => p.text).join('');
     }
+    throw new Error('API error');
 }
+  async function getReading(){
+    const p=planets[cur.planet],s=signs[cur.sign],h=houses[cur.house];
+    document.getElementById('result-cards').innerHTML='<div class="result-card"><img class="result-card-img" src="'+p.img+'"><span class="result-card-sym">'+p.sym+'</span><div class="result-card-category">PLANET</div><div class="result-card-name">'+p.name+'</div></div><div class="result-card"><img class="result-card-img" src="'+s.img+'"><span class="result-card-sym">'+s.sym+'</span><div class="result-card-category">SIGN</div><div class="result-card-name">'+s.name+'</div></div><div class="result-card"><img class="result-card-img" src="'+h.img+'"><span class="result-card-sym">'+h.sym+'</span><div class="result-card-category">HOUSE</div><div class="result-card-name">'+h.name+'</div></div>';document.getElementById('loading').classList.add('show');
+    try{
+      const text=await generateReading(p.name,s.name,h.name,currentWish);
+      document.getElementById('result-cards').innerHTML=`
+        <div class="result-card">
+          <img class="result-card-img" src="${p.img}">
+          <span class="result-card-sym">${p.sym}</span>
+          <div class="result-card-category">PLANET</div>
+          <div class="result-card-name">${p.name}</div>
+        </div>
+        <div class="result-card">
+          <img class="result-card-img" src="${s.img}">
+          <span class="result-card-sym">${s.sym}</span>
+          <div class="result-card-category">SIGN</div>
+          <div class="result-card-name">${s.name}</div>
+        </div>
+        <div class="result-card">
+          <img class="result-card-img" src="${h.img}">
+          <span class="result-card-sym">${h.sym}</span>
+          <div class="result-card-category">HOUSE</div>
+          <div class="result-card-name">${h.name}</div>
+        </div>`;
+      const wd=document.getElementById('wish-display');
+      if(currentWish){wd.style.display='block';document.getElementById('wish-display-text').textContent=currentWish;}
+      else{wd.style.display='none';}
+      document.getElementById('reading-combination').textContent=`${p.sym} ${p.name} × ${s.sym} ${s.name} × ${h.sym} ${h.name}`;
+      document.getElementById('reading-text').textContent=text;
+    }catch(e){
+      document.getElementById('reading-text').textContent='メッセージの受信に失敗しました。もう一度お試しください。';
+    }
+    document.getElementById('loading').classList.remove('show');
+    showScreen('result');
+  }
+
+  // 手動画面からの鑑定
+  function showReading(){
+    cur.planet=parseInt(document.getElementById('select-planet').value);
+    cur.sign=parseInt(document.getElementById('select-sign').value);
+    cur.house=parseInt(document.getElementById('select-house').value);
+    getReading();
+  }
+
+  // ── 星屑 ──
+  function createStars(){
+    const sf=document.getElementById('starfield');
+    for(let i=0;i<130;i++){
+      const s=document.createElement('div');s.className='star';
+      const sz=Math.random()*2.5+0.4,isGold=Math.random()<0.12;
+      s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;background:${isGold?'#e8c97a':'white'};--dur:${Math.random()*5+2}s;--op:${Math.random()*0.65+0.1};animation-delay:${Math.random()*8}s;`;
+      sf.appendChild(s);
+    }
+  }
+
+  buildSelects();
+  buildRefTable();
+  createStars();
+</script>
+</body>
+</html>
