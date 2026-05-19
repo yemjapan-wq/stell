@@ -475,17 +475,14 @@
 ・必ず350文字以上書くこと。途中で絶対に切らないこと。文章は必ず「。」で終わること。
 ・余計な説明は不要、鑑定文のみ出力`;
 
-    const res=await fetch(
-      `/api/generate`,
-      {method:'POST',headers:{'Content-Type':'application/json'},
-       const res = await fetch(
-      `/api/generate`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: prompt })
-      }
-    );
+  const res = await fetch(
+            '/api/generate',
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: prompt })
+            }
+        );
     if (!res.ok) throw new Error('Network error');
     const data = await res.json();
     if (data.candidates && data.candidates[0]) {
