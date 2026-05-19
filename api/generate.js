@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
   const body = req.body;
   body.generationConfig = {
-    maxOutputTokens: 2000,
+    maxOutputTokens: 4000,
     temperature: 0.9
   };
   const response = await fetch(
