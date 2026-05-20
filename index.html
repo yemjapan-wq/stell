@@ -28,7 +28,6 @@
   .top-subtitle{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(13px,3vw,17px);color:var(--text-cream);letter-spacing:0.1em;margin-top:8px;animation:fadeDown 1.6s ease forwards;opacity:0;animation-delay:0.4s;animation-fill-mode:forwards;}
   .top-tagline{font-size:11px;color:var(--text-dim);letter-spacing:0.3em;margin-top:5px;font-weight:200;animation:fadeDown 1.8s ease forwards;opacity:0;animation-delay:0.6s;animation-fill-mode:forwards;}
 
-  /* 手順エリア */
   .steps-area{width:100%;max-width:360px;margin-top:32px;}
 
   .step{display:flex;gap:14px;margin-bottom:24px;animation:fadeUp 0.8s ease forwards;opacity:0;animation-fill-mode:forwards;}
@@ -41,19 +40,16 @@
   .step-title{font-size:13px;color:var(--text-cream);margin-bottom:8px;line-height:1.7;letter-spacing:0.02em;}
   .step-title-highlight{font-size:16px;font-weight:600;color:var(--gold);letter-spacing:0.05em;line-height:1.6;margin-bottom:8px;text-shadow:0 0 20px rgba(201,168,76,0.3);}
 
-  /* 入力欄 */
   .wish-input{width:100%;background:rgba(13,16,37,0.85);border:1px solid rgba(201,168,76,0.3);padding:13px 15px;font-family:'Noto Serif JP',serif;font-size:14px;color:var(--text-white);outline:none;resize:none;transition:border-color 0.3s;line-height:1.8;}
   .wish-input::placeholder{color:var(--text-dim);font-size:12px;}
   .wish-input:focus{border-color:var(--gold);}
 
-  /* クイックシャッフルボックス */
   .quick-box{margin-top:10px;padding:14px;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.15);}
   .quick-note{font-size:11px;color:var(--text-dim);letter-spacing:0.1em;margin-bottom:10px;}
   .quick-warning{font-size:10px;color:rgba(201,168,76,0.5);letter-spacing:0.05em;margin-top:8px;line-height:1.6;}
   .btn-quick{width:100%;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.25em;color:var(--text-dim);background:transparent;border:1px solid rgba(201,168,76,0.25);padding:12px;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;}
   .btn-quick:hover{border-color:rgba(201,168,76,0.5);color:var(--gold);}
 
-  /* クイック結果表示 */
   .quick-result{display:none;margin-top:10px;padding:12px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);}
   .quick-result.show{display:block;}
   .quick-result-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.3em;color:var(--gold);margin-bottom:8px;}
@@ -62,12 +58,10 @@
   .quick-item-sym{font-size:16px;color:var(--gold);display:block;font-family:'Segoe UI Symbol','Apple Symbols',serif;}
   .quick-item-name{font-size:10px;color:var(--text-cream);margin-top:2px;}
 
-  /* 星に問いかけるボタン */
   .btn-start{width:100%;font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.3em;color:var(--space-deep);background:linear-gradient(135deg,var(--gold-dark),var(--gold),var(--gold-light),var(--gold));background-size:200% auto;border:none;padding:16px;cursor:pointer;transition:all 0.4s ease;position:relative;}
   .btn-start:hover:not(:disabled){box-shadow:0 0 30px rgba(201,168,76,0.5);transform:translateY(-1px);background-position:right center;}
   .btn-start:disabled{background:linear-gradient(135deg,rgba(201,168,76,0.15),rgba(201,168,76,0.1));color:rgba(201,168,76,0.25);cursor:not-allowed;}
 
-  /* 確認ダイアログ */
   .dialog-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;padding:24px;}
   .dialog-overlay.show{display:flex;}
   .dialog{background:#1a1430;border:1px solid rgba(201,168,76,0.3);padding:28px 24px;max-width:300px;width:100%;text-align:center;}
@@ -86,13 +80,11 @@
   .screen-title{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,5vw,30px);font-weight:300;color:var(--text-white);letter-spacing:0.05em;}
   .divider{width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:16px auto;}
 
-  /* 現在の問いかけ */
   .current-wish{width:100%;max-width:360px;margin-bottom:20px;padding:12px 16px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);position:relative;}
   .current-wish::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
   .current-wish-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.3em;color:var(--gold);margin-bottom:6px;}
   .current-wish-text{font-size:13px;color:var(--text-cream);line-height:1.8;font-style:italic;}
 
-  /* 手動選択（メイン） */
   .manual-main{width:100%;max-width:360px;background:rgba(13,16,37,0.85);border:1px solid rgba(201,168,76,0.18);padding:22px 18px;margin-bottom:16px;position:relative;}
   .manual-main::before{content:'';position:absolute;inset:4px;border:1px solid rgba(201,168,76,0.07);pointer-events:none;}
   .manual-main-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.3em;color:var(--text-dim);text-align:center;margin-bottom:16px;}
@@ -102,11 +94,9 @@
   .styled-select{flex:1;appearance:none;background:rgba(26,21,53,0.9);border:1px solid rgba(201,168,76,0.22);padding:11px 32px 11px 14px;font-family:'Noto Serif JP',serif;font-size:13px;color:var(--text-white);cursor:pointer;outline:none;transition:border-color 0.3s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c9a84c'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
   .styled-select:focus{border-color:var(--gold);}
 
-  /* 鑑定ボタン */
   .btn-divine{width:100%;font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.3em;color:var(--space-deep);background:linear-gradient(135deg,var(--gold-dark),var(--gold),var(--gold-light),var(--gold));background-size:200% auto;border:none;padding:16px;cursor:pointer;transition:all 0.3s ease;}
   .btn-divine:hover{box-shadow:0 4px 25px rgba(201,168,76,0.45);transform:translateY(-1px);background-position:right center;}
 
-  /* 対応表 */
   .ref-toggle{width:100%;max-width:360px;margin-bottom:16px;}
   .ref-toggle-btn{width:100%;background:transparent;border:1px solid rgba(201,168,76,0.12);padding:10px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.25em;color:var(--text-dim);cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;}
   .ref-toggle-btn:hover{border-color:rgba(201,168,76,0.3);color:var(--gold);}
@@ -146,7 +136,6 @@
   .btn-again{margin-top:24px;max-width:360px;width:100%;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.3em;color:var(--text-dim);background:transparent;border:1px solid rgba(201,168,76,0.18);padding:14px;cursor:pointer;transition:all 0.3s ease;}
   .btn-again:hover{border-color:rgba(201,168,76,0.5);color:var(--gold);}
 
-  /* LOADING */
   .loading-overlay{display:none;position:fixed;inset:0;background:rgba(5,6,15,0.96);z-index:100;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
   .loading-overlay.show{display:flex;}
   .loading-orb{width:60px;height:60px;border-radius:50%;border:1px solid rgba(201,168,76,0.3);position:relative;animation:orbSpin 2s linear infinite;}
@@ -165,14 +154,12 @@
 <body>
 <div class="starfield" id="starfield"></div>
 
-<!-- ローディング -->
 <div class="loading-overlay" id="loading">
   <div class="loading-orb"><div class="loading-star-inner">✦</div></div>
   <div class="loading-text">READING THE STARS...</div>
   <div class="loading-sub">星があなたへのメッセージを紡いでいます</div>
 </div>
 
-<!-- クイック確認ダイアログ -->
 <div class="dialog-overlay" id="dialog">
   <div class="dialog">
     <div class="dialog-title">確認</div>
@@ -194,8 +181,6 @@
   </div>
 
   <div class="steps-area">
-
-    <!-- STEP 1 -->
     <div class="step">
       <div class="step-num">1</div>
       <div class="step-body">
@@ -206,7 +191,6 @@
       </div>
     </div>
 
-    <!-- STEP 2 -->
     <div class="step">
       <div class="step-num">2</div>
       <div class="step-body">
@@ -223,7 +207,6 @@
       </div>
     </div>
 
-    <!-- STEP 3 -->
     <div class="step">
       <div class="step-num">3</div>
       <div class="step-body">
@@ -233,11 +216,10 @@
         </button>
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- ── INPUT（手動メイン） ── -->
+<!-- ── INPUT ── -->
 <div class="screen" id="screen-input">
   <div class="screen-header">
     <div class="screen-label">STEP 02</div>
@@ -245,13 +227,11 @@
     <div class="divider"></div>
   </div>
 
-  <!-- 現在の問いかけ -->
   <div class="current-wish">
     <div class="current-wish-label">— 現在の問いかけ —</div>
     <div class="current-wish-text" id="current-wish-text"></div>
   </div>
 
-  <!-- 手動選択メイン -->
   <div class="manual-main">
     <div class="manual-main-label">— ダイスの目を選んでください —</div>
     <div class="select-groups">
@@ -271,7 +251,6 @@
     <button class="btn-divine" onclick="showReading()">✦ 星のメッセージを受け取る ✦</button>
   </div>
 
-  <!-- 対応表 -->
   <div class="ref-toggle">
     <button class="ref-toggle-btn" onclick="toggleRef()">
       📋 <span id="ref-btn-text">普通のサイコロ用 対応表を見る</span>
@@ -311,8 +290,6 @@
 </div>
 
 <script>
-  const GEMINI_API_KEY = 'AIzaSyDHPuVgj1puKVe62zFfsiUI8G2IWiWch4A';
-
   const planets = [
     {name:'太陽',   sym:'☀',  img:'25.png'},
     {name:'月',     sym:'☽',  img:'27.png'},
@@ -361,13 +338,11 @@
   let currentWish = '';
   let isQuickMode = false;
 
-  // ── 入力チェック ──
   function checkWishInput(){
     const val = document.getElementById('top-wish-input').value.trim();
     document.getElementById('btn-start').disabled = val.length === 0;
   }
 
-  // ── ダイアログ ──
   function openDialog(){
     document.getElementById('dialog').classList.add('show');
   }
@@ -376,19 +351,16 @@
   }
   function confirmQuick(){
     closeDialog();
-    // ランダム選択
     const pi = Math.floor(Math.random()*planets.length);
     const si = Math.floor(Math.random()*signs.length);
     const hi = Math.floor(Math.random()*houses.length);
     cur = {planet:pi, sign:si, house:hi};
     isQuickMode = true;
 
-    // セレクトに反映
     document.getElementById('select-planet').value = pi;
     document.getElementById('select-sign').value = si;
     document.getElementById('select-house').value = hi;
 
-    // TOP画面に結果表示
     const p=planets[pi], s=signs[si], h=houses[hi];
     document.getElementById('quick-result-items').innerHTML = `
       <div class="quick-item"><span class="quick-item-sym">${p.sym}</span><div class="quick-item-name">${p.name}</div></div>
@@ -398,20 +370,16 @@
     document.getElementById('quick-result').classList.add('show');
   }
 
-  // ── 星に問いかけるボタン ──
   function goNext(){
     currentWish = document.getElementById('top-wish-input').value.trim();
     if(isQuickMode){
-      // クイック → 直接鑑定
       getReading();
     } else {
-      // 手動 → 入力画面へ
       document.getElementById('current-wish-text').textContent = currentWish;
       showScreen('input');
     }
   }
 
-  // ── もう一度 ──
   function backToTop(){
     isQuickMode = false;
     document.getElementById('quick-result').classList.remove('show');
@@ -420,7 +388,6 @@
     showScreen('top');
   }
 
-  // ── セレクト構築 ──
   function buildSelects(){
     const ps=document.getElementById('select-planet');
     planets.forEach((p,i)=> ps.innerHTML+=`<option value="${i}">${i+1}. ${p.sym} ${p.name}</option>`);
@@ -437,7 +404,6 @@
     else cur.house=i;
   }
 
-  // ── 対応表 ──
   function buildRefTable(){
     const rp=document.getElementById('ref-planets');
     planets.forEach((p,i)=> rp.innerHTML+=`<div class="ref-item"><span class="ref-num">${i+1}</span><span class="ref-sym">${p.sym}</span><span class="ref-name">${p.name}</span></div>`);
@@ -452,14 +418,12 @@
     btn.textContent=panel.classList.contains('open')?'対応表を閉じる':'普通のサイコロ用 対応表を見る';
   }
 
-  // ── 画面切替 ──
   function showScreen(id){
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
     document.getElementById('screen-'+id).classList.add('active');
     window.scrollTo(0,0);
   }
 
-  // ── Gemini API ──
   async function generateReading(planet,sign,house,wish){
     const prompt=`あなたはプロのアストロダイス占い師です。以下の組み合わせで、ユーザーの願いを考慮してユーザーへの400文字の鑑定文を書いてください。
 
@@ -472,27 +436,28 @@
 ・「あなたへ」という語りかけ形式で書く
 ・温かみのある女性向けの文章
 ・具体的なアドバイスや今後のヒントで締めくくる
-・必ず350文字以上書くこと。途中で絶対に切らないこと。文章は必ず「。」で終わること。
+・必ず400文字以上書くこと。途中で絶対に切らないこと。文章は必ず「。」で終わること。
 ・余計な説明は不要、鑑定文のみ出力`;
 
-  const res = await fetch(
-            '/api/generate',
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: prompt })
-            }
-        );
+    const res = await fetch(
+      '/api/generate',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: prompt })
+      }
+    );
     if (!res.ok) throw new Error('Network error');
     const data = await res.json();
     if (data.candidates && data.candidates[0]) {
       return data.candidates[0].content.parts.map(p => p.text).join('');
     }
     throw new Error('API error');
-}
+  }
+
   async function getReading(){
     const p=planets[cur.planet],s=signs[cur.sign],h=houses[cur.house];
-    document.getElementById('result-cards').innerHTML='<div class="result-card"><img class="result-card-img" src="'+p.img+'"><span class="result-card-sym">'+p.sym+'</span><div class="result-card-category">PLANET</div><div class="result-card-name">'+p.name+'</div></div><div class="result-card"><img class="result-card-img" src="'+s.img+'"><span class="result-card-sym">'+s.sym+'</span><div class="result-card-category">SIGN</div><div class="result-card-name">'+s.name+'</div></div><div class="result-card"><img class="result-card-img" src="'+h.img+'"><span class="result-card-sym">'+h.sym+'</span><div class="result-card-category">HOUSE</div><div class="result-card-name">'+h.name+'</div></div>';document.getElementById('loading').classList.add('show');
+    document.getElementById('loading').classList.add('show');
     try{
       const text=await generateReading(p.name,s.name,h.name,currentWish);
       document.getElementById('result-cards').innerHTML=`
@@ -526,7 +491,6 @@
     showScreen('result');
   }
 
-  // 手動画面からの鑑定
   function showReading(){
     cur.planet=parseInt(document.getElementById('select-planet').value);
     cur.sign=parseInt(document.getElementById('select-sign').value);
@@ -534,7 +498,6 @@
     getReading();
   }
 
-  // ── 星屑 ──
   function createStars(){
     const sf=document.getElementById('starfield');
     for(let i=0;i<130;i++){
