@@ -172,10 +172,52 @@
   /* 制限ダイアログ */
   .limit-dialog-text{font-size:13px;color:var(--text-cream);line-height:2.1;margin-bottom:20px;text-align:left;}
   .limit-dialog-text .limit-title{font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.2em;color:var(--gold);display:block;margin-bottom:12px;text-align:center;}
+
+  /* ── PASSWORD ── */
+  #screen-password{justify-content:center;align-items:center;padding:40px 24px;min-height:100vh;}
+  .pw-box{width:100%;max-width:320px;text-align:center;}
+  .pw-logo{font-family:'Cinzel',serif;font-size:clamp(28px,8vw,46px);font-weight:600;letter-spacing:0.15em;color:var(--text-white);text-shadow:0 0 40px rgba(201,168,76,0.25);margin-bottom:6px;}
+  .pw-logo span{color:var(--gold);text-shadow:0 0 30px rgba(201,168,76,0.6);}
+  .pw-subtitle{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--text-cream);letter-spacing:0.1em;margin-bottom:32px;}
+  .pw-ornament{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:28px;}
+  .pw-ornament::before,.pw-ornament::after{content:'';width:40px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+  .pw-ornament-text{color:var(--gold);font-size:11px;letter-spacing:4px;}
+  .pw-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.4em;color:var(--text-dim);margin-bottom:10px;}
+  .pw-input{width:100%;background:rgba(13,16,37,0.85);border:1px solid rgba(201,168,76,0.3);padding:14px 16px;font-family:'Noto Serif JP',serif;font-size:15px;color:var(--text-white);outline:none;text-align:center;letter-spacing:0.2em;transition:border-color 0.3s;margin-bottom:12px;}
+  .pw-input::placeholder{color:var(--text-dim);font-size:12px;letter-spacing:0.1em;}
+  .pw-input:focus{border-color:var(--gold);}
+  .pw-input.error{border-color:rgba(200,80,80,0.6);animation:shake 0.4s ease;}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+  .btn-pw{width:100%;font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.3em;color:var(--space-deep);background:linear-gradient(135deg,var(--gold-dark),var(--gold),var(--gold-light),var(--gold));background-size:200% auto;border:none;padding:15px;cursor:pointer;transition:all 0.4s ease;margin-bottom:14px;}
+  .btn-pw:hover{box-shadow:0 0 30px rgba(201,168,76,0.5);transform:translateY(-1px);background-position:right center;}
+  .pw-error-msg{font-size:12px;color:rgba(200,100,100,0.8);letter-spacing:0.05em;height:18px;transition:opacity 0.3s;}
+  .pw-hint{font-size:11px;color:var(--text-dim);line-height:1.9;margin-top:24px;letter-spacing:0.05em;}
+  .pw-hint a{color:rgba(201,168,76,0.6);text-decoration:none;}
+  .pw-hint a:hover{color:var(--gold);}
 </style>
 </head>
 <body>
 <div class="starfield" id="starfield"></div>
+
+
+<!-- ── PASSWORD ── -->
+<div class="screen active" id="screen-password">
+  <div class="pw-box">
+    <div class="pw-logo">STELLA <span>DIVE</span></div>
+    <div class="pw-subtitle">星が語るあなたへのメッセージ</div>
+    <div class="pw-ornament"><span class="pw-ornament-text">✦ ✧ ✦</span></div>
+    <div class="pw-label">— 今月のパスワードを入力してください —</div>
+    <input class="pw-input" id="pw-input" type="password"
+      placeholder="password"
+      onkeydown="if(event.key==='Enter')checkPassword()">
+    <button class="btn-pw" onclick="checkPassword()">✦ 入室する ✦</button>
+    <div class="pw-error-msg" id="pw-error"></div>
+    <div class="pw-hint">
+      パスワードは公式LINEにて毎月配布しています<br>
+      <a href="https://lin.ee/yJVlW7e" target="_blank">▶ 公式LINEに登録する</a>
+    </div>
+  </div>
+</div>
 
 <!-- ローディング -->
 <div class="loading-overlay" id="loading">
@@ -210,7 +252,7 @@
 </div>
 
 <!-- ── TOP ── -->
-<div class="screen active" id="screen-top">
+<div class="screen" id="screen-top">
   <div style="text-align:center;margin-bottom:24px;animation:fadeDown 1.2s ease forwards;">
     <div class="ornament-line"><span class="star-symbol">✦ ✧ ✦</span></div>
     <div class="top-title">STELLA <span class="title-dive">DIVE</span></div>
@@ -713,6 +755,70 @@ ${wish || '（特になし）'}
     }
   }
 
+
+  // ━━ 月替わりパスワード ━━
+  const MONTHLY_PASSWORDS = {
+    '2026-01': 'venus0126',
+    '2026-06': 'gemini0626',
+    '2026-07': 'sirius0726',
+    '2026-08': 'sunstar0826',
+    '2026-09': 'virgo0926',
+    '2026-10': 'scorpio1026',
+    '2026-11': 'saturn1126',
+    '2026-12': 'stella1226',
+    '2026-02': 'pisces0226',
+    '2026-03': 'aries0326',
+    '2026-04': 'jupiter0426',
+    '2026-05': 'taurus0526',
+    '2027-01': 'moonrise0127',
+    '2027-02': 'aquarius0227',
+    '2027-03': 'spring0327',
+    '2027-04': 'cosmos0427',
+    '2027-05': 'mercury0527',
+    '2027-06': 'solstice0627',
+    '2027-07': 'lyra0727',
+    '2027-08': 'leo0827',
+    '2027-09': 'harvest0927',
+    '2027-10': 'pluto1027',
+    '2027-11': 'nebula1127',
+    '2027-12': 'orion1227',
+  };
+
+  function getCurrentMonthKey() {
+    const d = new Date();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    return `${d.getFullYear()}-${m}`;
+  }
+
+  function isPasswordValid(input) {
+    if (localStorage.getItem('stellaDiveUnlocked') === 'true') return true;
+    const key = getCurrentMonthKey();
+    return MONTHLY_PASSWORDS[key] === input;
+  }
+
+  function checkPasswordStored() {
+    if (localStorage.getItem('stellaDiveUnlocked') === 'true') return true;
+    const stored = JSON.parse(localStorage.getItem('stellaDiveAuth') || '{}');
+    return stored.month === getCurrentMonthKey();
+  }
+
+  function checkPassword() {
+    const input = document.getElementById('pw-input').value.trim();
+    const errEl = document.getElementById('pw-error');
+    if (!input) return;
+    if (isPasswordValid(input)) {
+      // 月末まで記憶
+      localStorage.setItem('stellaDiveAuth', JSON.stringify({ month: getCurrentMonthKey() }));
+      errEl.textContent = '';
+      showScreen('top');
+    } else {
+      const pwInput = document.getElementById('pw-input');
+      pwInput.classList.add('error');
+      errEl.textContent = 'パスワードが違います。公式LINEをご確認ください。';
+      setTimeout(() => pwInput.classList.remove('error'), 400);
+    }
+  }
+
   // ━━ 開発者解除 ━━
   (function(){
     const p = new URLSearchParams(location.search);
@@ -727,6 +833,10 @@ ${wish || '（特になし）'}
   buildRefTable();
   createStars();
   updateAIButtons();
+  // 認証チェック（保存済みなら直接TOP）
+  if (checkPasswordStored()) {
+    showScreen('top');
+  }
 </script>
 </body>
 </html>
