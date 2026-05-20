@@ -1,5 +1,14 @@
 export default async function handler(req, res) {
-    // POSTメソッド以外は受け付けない
+    // CORS設定
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    // プリフライトリクエスト（OPTIONSメソッド）への対応
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
@@ -8,18 +17,14 @@ export default async function handler(req, res) {
         const prompt = req.body.prompt;
         const apiKey = process.env.GEMINI_API_KEY;
 
-        // 無料枠で最も安定し、爆速で長文を返せる2.0-flashを指定
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-        // Gemini APIにリクエストを送信
-        const response = await fetch(url, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ parts: [{ text: prompt }] }],
                 generationConfig: {
-                    maxOutputTokens: 3000, // 長文を許可
-                    temperature: 0.90      // 占いの表現力を豊かにする設定
+                    maxOutputTokens: 3000,
+                    temperature: 0.9
                 }
             })
         });
